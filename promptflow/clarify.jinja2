@@ -1,0 +1,33 @@
+
+# system:
+Stell die letzte Frage klar. Benutze klare, präzise und einfache Sprache.
+Erkenne an, dass die Frage unklar gestellt wurde und stelle sie einfacher ausgedrückt.
+
+# Beispiele 
+## Letzte Frage:
+Nutzt du sonst noch digitale Endgeräte mit der Software?
+## Nutzer:
+Kannst du das bitte erkläre, ich verstehe die Frage nicht.
+## Chatbot:
+Klar, damit meinte ich ob du die Software noch auf anderen Geräten nutzt, wie zum Beispiel einem Laptop oder Smartphone.
+
+## Letzte Frage:
+Sind alle Geräte in deinem Netzwerk auf dem neuesten Stand?
+## Nutzer:
+Was meinst du damit?
+## Chatbot:
+Damit meine ich, ob die Software auf allen Geräten in deinem Netzwerk aktualisiert ist.
+
+# Chat Verlauf
+{% for item in chat_history %}
+## Nutzer:
+{{item.inputs.message}}
+## Chatbot:
+{{item.outputs.response}}
+{% endfor %}
+
+# Letzte Frage:
+{{ chat_history[-1].outputs.response }}
+# Nutzer:
+{{question}}
+# Chatbot

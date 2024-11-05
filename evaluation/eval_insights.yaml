@@ -1,0 +1,224 @@
+# Learn more: https://www.promptfoo.dev/docs/providers/python
+
+# How to run this script:
+# promptfoo eval -c eval_intent.yaml
+# npx promptfoo@latest eval -c eval_intent.yaml
+
+# How to view results:
+# npx promptfoo@latest view -y
+
+# you can use --repeat to repeat each testcase a certain amount
+
+# environment vars:
+# - AZURE_OPENAI_API_KEY
+
+
+# Results:
+# Baseline: 41%
+# Kategorieerklärungen: 100%
+# few shot (3): 100%
+# Chain of thought:
+
+description: "insights eval explanation + few shot"
+
+prompts:
+  - "{{query}}"
+
+providers:
+  # promptflow 1
+  - id: "python:run_component.py"
+    label: "component"
+    config:
+      flow_path: "../promptflow"
+      node_name: "insights"
+
+# This will be set for each test, it sets the default eval deployment
+defaultTest: # https://www.promptfoo.dev/docs/providers/azure
+  options:
+    provider:
+      id: azureopenai:chat:gpt-4o-mini
+      config:
+        apiHost: "https://btaistudio0140798247.openai.azure.com"
+
+tests:
+# Manuell checken ob er es nicht hinzufügt
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Ich heiße übrigens Jo",
+          "insights": {
+            "nutzer": "- der Nutzer heißt Jo", 
+            "ziel": "",
+            "aufgaben": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": ""
+                  },
+                  "outputs": {
+                      "response": "Hi Jo, \nwillkommen beim Interview!\n Hast du lust dich kurz vorzustellen?",
+                      "intent": "nutzer"
+                  }
+              }
+          ]
+        }
+    assert:
+      - type: icontains-all
+        value: 
+        - "bekannt"
+        
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Ich bin in der Wago Business Line tätig.",
+          "insights": {
+            "nutzer": "- der Nutzer heißt Jo", 
+            "ziel": "",
+            "aufgaben": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": ""
+                  },
+                  "outputs": {
+                      "response": "Hi Jo, \nwillkommen beim Interview!\n Hast du lust dich kurz vorzustellen?",
+                      "intent": "nutzer"
+                  }
+              }
+          ]
+        }
+    assert:
+      - type: icontains-all
+        value: 
+        - "nutzer:"
+        - "Wago business"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Ich nutze vor allem das aktualisierungs feature, ich finde es ist einfach super spitze.",
+          "insights": {
+            "nutzer": "- der Nutzer heißt Jo", 
+            "ziel": "",
+            "aufgaben": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": ""
+                  },
+                  "outputs": {
+                      "response": "Hi Jo, \nwillkommen beim Interview!\n Hast du lust dich kurz vorzustellen?",
+                      "intent": "nutzer"
+                  }
+              }
+          ]
+        }
+    assert:
+      - type: icontains-all
+        value: 
+        - "ziel:"
+        - "aktualisier"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Meistens klicke ich auf den roten Knopf.",
+          "insights": {
+            "nutzer": "- der Nutzer heißt Jo", 
+            "ziel": "- er nutzt gerne das aktualisierungs feature\n-er findet das deinstallieren feature wichtig",
+            "aufgaben": "",
+            "umgebung": "- er nutzt es gerne im Büro",
+            "ressourcen": ""
+          },
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Ich nutze meistens das Feature zur automatischen installation."
+                  },
+                  "outputs": {
+                      "response": "Ah interessant, wie kannst du es an schalten?",
+                      "intent": "aufgabe"
+                  }
+              }
+          ]
+        }
+    assert:
+      - type: icontains-all
+        value: 
+        - "aufgabe"
+        - "roten knopf"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Ich nutze die App meistens auf dem Klo.",
+          "insights": {
+            "nutzer": "- der Nutzer heißt Marcel", 
+            "ziel": "- er nutzt gerne das aktualisierungs feature\n-er findet das deinstallieren feature wichtig",
+            "aufgaben": "",
+            "umgebung": "",
+            "ressourcen": "- er nutzt sein handy"
+          },
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Ich nutze meistens das Feature zur automatischen installation."
+                  },
+                  "outputs": {
+                      "response": "Ah interessant, in welcher Umgebung?",
+                      "intent": "umgebung"
+                  }
+              }
+          ]
+        }
+    assert:
+      - type: icontains-all
+        value: 
+        - "umgebung:"
+        - "klo"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Ich nutze die App meistens auf meinem Arbeits laptop",
+          "insights": {
+            "nutzer": "- der Nutzer heißt Marcel", 
+            "ziel": "- er nutzt gerne das aktualisierungs feature\n-er findet das deinstallieren feature wichtig",
+            "aufgaben": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Ich nutze meistens das Feature zur automatischen installation."
+                  },
+                  "outputs": {
+                      "response": "Ah interessant, auf welchem Gerät?",
+                      "intent": "umgebung"
+                  }
+              }
+          ]
+        }
+    assert:
+      - type: icontains-all
+        value: 
+        - "ressourcen"
+        - "laptop"
+
+

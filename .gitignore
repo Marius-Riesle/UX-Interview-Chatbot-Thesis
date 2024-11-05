@@ -1,0 +1,6 @@
+/chats/*
+__pycache__
+.env
+readme
+.*
+!.gitignore

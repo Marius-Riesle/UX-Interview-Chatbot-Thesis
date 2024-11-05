@@ -1,0 +1,297 @@
+# Learn more: https://www.promptfoo.dev/docs/providers/python
+
+# How to run this script:
+# promptfoo eval -c eval_intent.yaml
+# npx promptfoo@latest eval -c eval_intent.yaml
+
+# How to view results:
+# npx promptfoo@latest view -y
+
+# you can use --repeat to repeat each testcase a certain amount
+
+# environment vars:
+# - AZURE_OPENAI_API_KEY
+
+
+# Results:
+# Baseline: 41%
+# Kategorieerklärungen: 100%
+# few shot (3): 100%
+# Chain of thought:
+
+description: "intent eval basic"
+
+prompts:
+  - "{{query}}"
+
+providers:
+  # promptflow 1
+  - id: "python:run_component.py"
+    label: "component"
+    config:
+      flow_path: "../promptflow"
+      node_name: "intent"
+
+# This will be set for each test, it sets the default eval deployment
+defaultTest: # https://www.promptfoo.dev/docs/providers/azure
+  options:
+    provider:
+      id: azureopenai:chat:gpt-4o-mini
+      config:
+        apiHost: "https://btaistudio0140798247.openai.azure.com"
+
+tests:
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Hi",
+          "chat_history": [],
+          "last_intent": "ziel"
+        }
+    assert:
+      - type: icontains
+        value: "anderes"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Gerne, ich bin Klaus aus dem CC Data & AI!",
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": ""
+                  },
+                  "outputs": {
+                      "response": "Hi mre, \nwillkommen beim Interview!\n Hast du lust dich kurz vorzustellen?",
+                      "intent": "nutzer"
+                  }
+              }
+          ],
+          "last_intent": "user"
+        }
+    assert:
+      - type: icontains
+        value: "antwort auf frage"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Wie lange geht dieses Interview eigentlich noch?",
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Ich nutze es vor allem für installationen"
+                  },
+                  "outputs": {
+                      "response": "Würdest du sagen es beschleunigt den Prozess Software zu installieren?",
+                      "intent": "ziel"
+                  }
+              }
+          ],
+          "last_intent": "ziel"
+        }
+    assert:
+      - type: icontains
+        value: "interview frage"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Was meinst du mit Funktionalitäten?",
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Ich benutze Baramundi Kiosk schon seit Jahren."
+                  },
+                  "outputs": {
+                      "response": "Was sind deine Lieblings Funktionalitäten von Baramundi Kiosk?",
+                      "intent": "ziel"
+                  }
+              }
+          ],
+          "last_intent": "ziel"
+        }
+    assert:
+      - type: icontains
+        value: "klarstellen der frage"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Über was geht das Interview nochmal?",
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Ich benutze Baramundi Kiosk schon seit Jahren."
+                  },
+                  "outputs": {
+                      "response": "Was sind deine Lieblings Funktionalitäten von Baramundi Kiosk?",
+                      "intent": "ziel"
+                  }
+              }
+          ],
+          "last_intent": "ziel"
+        }
+    assert:
+      - type: icontains
+        value: "interview frage"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "ich bin seit 15 Jahren bei M&M.",
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Wie lange geht das Interview noch?"
+                  },
+                  "outputs": {
+                      "response": "Das Interview geht insgesamt 25 Minuten. Beantworte bitte die letzte Frage falls ich hiermit deine Frage beantwortet habe",
+                      "intent": "anderes"
+                  }
+              }
+          ],
+          "last_intent": "anderes"
+        }
+    assert:
+      - type: icontains
+        value: "antwort auf frage"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "tzeuidkjmr",
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Ich benutze Baramundi Kiosk schon seit Jahren."
+                  },
+                  "outputs": {
+                      "response": "Was sind deine Lieblings Funktionalitäten von Baramundi Kiosk?",
+                      "intent": "ziel"
+                  }
+              }
+          ],
+          "last_intent": "ziel"
+        }
+    assert:
+      - type: icontains
+        value: "anderes"
+
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Sich einarbeiten zu müssen in neue systeme.",
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Es gibt viele Herausforderungen im digitalen Wandel."
+                  },
+                  "outputs": {
+                      "response": "Was für Herausforderungen erlebst du konkret?",
+                      "intent": "ziel"
+                  }
+              }
+          ],
+          "last_intent": "ziel"
+        }
+    assert:
+      - type: icontains
+        value: "antwort auf frage"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Sich einarbeiten zu müssen in neue systeme.",
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Es gibt viele Herausforderungen im digitalen Wandel."
+                  },
+                  "outputs": {
+                      "response": "Was für Herausforderungen erlebst du konkret?",
+                      "intent": "ziel"
+                  }
+              }
+          ],
+          "last_intent": "ziel"
+        }
+    assert:
+      - type: icontains
+        value: "antwort auf frage"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Können wir das Thema wechseln?",
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Es gibt viele Herausforderungen im digitalen Wandel."
+                  },
+                  "outputs": {
+                      "response": "Was für Herausforderungen erlebst du konkret?",
+                      "intent": "ziel"
+                  }
+              }
+          ],
+          "last_intent": "ziel"
+        }
+    assert:
+      - type: icontains
+        value: "antwort auf frage"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Du bist echt ein guter Chatbot!",
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Es gibt viele Herausforderungen im digitalen Wandel."
+                  },
+                  "outputs": {
+                      "response": "Was für Herausforderungen erlebst du konkret?",
+                      "intent": "ziel"
+                  }
+              }
+          ],
+          "last_intent": "ziel"
+        }
+    assert:
+      - type: icontains
+        value: "anderes"
+
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "message": "Ich liebe Pizza.",
+          "chat_history": [
+              {
+                  "inputs": {
+                      "message": "Es gibt viele Herausforderungen im digitalen Wandel."
+                  },
+                  "outputs": {
+                      "response": "Was für Herausforderungen erlebst du konkret?",
+                      "intent": "ziel"
+                  }
+              }
+          ],
+          "last_intent": "ziel"
+        }
+    assert:
+      - type: icontains
+        value: "anderes"

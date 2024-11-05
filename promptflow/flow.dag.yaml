@@ -1,0 +1,218 @@
+id: template_chat_flow
+name: Template Chat Flow
+environment:
+  python_requirements_txt: requirements.txt
+environment_variables:
+  PF_DISABLE_TRACING: true
+inputs:
+  chat_history:
+    type: list
+  message:
+    type: string
+    default: ""
+  last_intent:
+    type: string
+    default: ""
+  starting_unix:
+    type: int
+  time_spent:
+    type: object
+  insights:
+    type: object
+outputs:
+  intent:
+    type: string
+    reference: ${intent_extractor.output}
+  response:
+    type: string
+    reference: ${Merge.output}
+  insights:
+    type: string
+    reference: ${combine_insights.output}
+  insights_llm_call_output:
+    type: string
+    reference: ${insights.output}
+  goal:
+    type: string
+    reference: ${goal_extractor.output}
+  goal_llm_call_output:
+    type: string
+    reference: ${goal.output}
+  question_llm_output:
+    type: string
+    reference: ${question.output}
+  intent_llm_output:
+    type: string
+    reference: ${intent.output}
+nodes:
+- name: Timer
+  type: python
+  source:
+    type: code
+    path: Timer.py
+  inputs:
+    start_zeit: ${inputs.starting_unix}
+    gesamtzeit: 25
+    time_spent: ${inputs.time_spent}
+  activate:
+    when: ${intent_extractor.output}
+    is: antwort auf frage
+  aggregation: false
+- name: insights
+  type: llm
+  source:
+    type: code
+    path: insights.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0.3
+    insights: ${inputs.insights}
+    message: ${inputs.message}
+    chat_history: ${inputs.chat_history}
+    response_format:
+      type: json_object
+  connection: bt_open_ai_service
+  api: chat
+- name: combine_insights
+  type: python
+  source:
+    type: code
+    path: insights.py
+  inputs:
+    new_insights: ${insights.output}
+    insights: ${inputs.insights}
+- name: intent
+  type: llm
+  source:
+    type: code
+    path: intent.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0
+    chat_history: ${inputs.chat_history}
+    message: ${inputs.message}
+    response_format:
+      type: json_object
+  connection: bt_open_ai_service
+  api: chat
+- name: intent_extractor
+  type: python
+  source:
+    type: code
+    path: intent_extractor.py
+  inputs:
+    intent: ${intent.output}
+- name: other
+  type: llm
+  source:
+    type: code
+    path: other.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0.5
+    chat_history: ${inputs.chat_history}
+    question: ${inputs.message}
+  connection: bt_open_ai_service
+  api: chat
+  activate:
+    when: ${intent_extractor.output}
+    is: anderes
+- name: goal
+  type: llm
+  source:
+    type: code
+    path: goal.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0.5
+    zeit_hinweis: ${Timer.output}
+    insights: ${inputs.insights}
+    chat_history: ${inputs.chat_history}
+    question: ${inputs.message}
+    response_format:
+      type: json_object
+  connection: bt_open_ai_service
+  api: chat
+  activate:
+    when: ${intent_extractor.output}
+    is: antwort auf frage
+- name: goal_extractor
+  type: python
+  source:
+    type: code
+    path: goal_extractor.py
+  inputs:
+    goal: ${goal.output}
+- name: clarify
+  type: llm
+  source:
+    type: code
+    path: clarify.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0.5
+    chat_history: ${inputs.chat_history}
+    question: ${inputs.message}
+  connection: bt_open_ai_service
+  api: chat
+  activate:
+    when: ${intent_extractor.output}
+    is: klarstellen der frage
+- name: interview_question
+  type: llm
+  source:
+    type: code
+    path: interview_question.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0.5
+    chat_history: ${inputs.chat_history}
+    question: ${inputs.message}
+  connection: bt_open_ai_service
+  api: chat
+  activate:
+    when: ${intent_extractor.output}
+    is: interview frage
+- name: Interview_question_add_instruction
+  type: python
+  source:
+    type: code
+    path: Interview_question_add_instruction.py
+  inputs:
+    response: ${interview_question.output}
+- name: question
+  type: llm
+  source:
+    type: code
+    path: question.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0.7
+    insights: ${inputs.insights}
+    chat_history: ${inputs.chat_history}
+    question: ${inputs.message}
+    goal: ${goal.output}
+    response_format:
+      type: json_object
+  connection: bt_open_ai_service
+  api: chat
+  activate:
+    when: ${intent_extractor.output}
+    is: antwort auf frage
+- name: question_extractor
+  type: python
+  source:
+    type: code
+    path: question_extractor.py
+  inputs:
+    question: ${question.output}
+- name: Merge
+  type: python
+  source:
+    type: code
+    path: Merge.py
+  inputs:
+    string_2: ${question_extractor.output}
+    string_3: ${clarify.output}
+    string_4: ${Interview_question_add_instruction.output}
+    string_5: ${other.output}

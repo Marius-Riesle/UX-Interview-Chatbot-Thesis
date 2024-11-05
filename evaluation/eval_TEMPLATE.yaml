@@ -1,0 +1,55 @@
+# Learn more: https://www.promptfoo.dev/docs/providers/python
+
+# How to run this script:
+# promptfoo eval -c eval_TEMPLATE.yaml
+# npx promptfoo@latest eval -c eval_TEMPLATE.yaml
+
+# How to view results:
+# npx promptfoo@latest view -y
+
+# you can use --repeat to repeat each testcase a certain amount
+
+# environment vars:
+# - AZURE_OPENAI_API_KEY
+
+description: "Eval for one component"
+
+prompts:
+  - "{{query}}"
+
+providers:
+  # promptflow 1
+  - id: "python:run_component.py"
+    label: "component"
+    config:
+      flow_path: "../promptflow"
+      node_name: "node_name"
+
+# This will be set for each test, it sets the default eval deployment
+defaultTest: # https://www.promptfoo.dev/docs/providers/azure
+  options:
+    provider:
+      id: azureopenai:chat:gpt-4o-mini
+      config:
+        apiHost: "https://btaistudio0140798247.openai.azure.com"
+
+tests:
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "question": "Hi",
+          "chat_history": [],
+          "aktuelle_hauptfrage": "Machst du Sport?",
+          "startzeitpunkt": "CURRENT_TIME - (10*60)",
+          "Hauptfragen": [
+            "Machst du Sport?",
+            "Wieso machst du diesen Sport?",
+            "Wie lange machst du den Sport schon?",
+            "Hast du schonmal etwas gewonnen?",
+            "Wie empfandest du dieses Interview?"
+          ]
+        }
+    assert:
+      - type: icontains
+        value: "anderes"
