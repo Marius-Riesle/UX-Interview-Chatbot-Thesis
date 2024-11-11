@@ -1,0 +1,329 @@
+# Learn more: https://www.promptfoo.dev/docs/providers/python
+
+# How to run this script:
+# promptfoo eval -c eval_TEMPLATE.yaml
+# npx promptfoo@latest eval -c eval_TEMPLATE.yaml
+
+# How to view results:
+# npx promptfoo@latest view -y
+
+# you can use --repeat to repeat each testcase a certain amount
+
+# environment vars:
+# - AZURE_OPENAI_API_KEY
+
+description: "Eval for goal components"
+
+prompts:
+  - "{{query}}"
+
+providers:
+  # promptflow 1
+  - id: "python:run_goal_components.py"
+    label: "component"
+    config:
+      flow_path: "../promptflow"
+
+# This will be set for each test, it sets the default eval deployment
+defaultTest: # https://www.promptfoo.dev/docs/providers/azure
+  options:
+    provider:
+      id: azureopenai:chat:gpt-4o
+      config:
+        apiHost: "https://btaistudio0140798247.openai.azure.com"
+
+tests:
+# default case. Digging down on the question inside the aspect, because there is enough time.
+  - vars:
+      prompt: ""
+      goal_args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "",
+                "intent": "anderes"
+              },
+              "outputs": {
+                "response": "Hallo mre, herzlich willkommen zum Interview!\n\nEs freut mich, dass du dir die Zeit nimmst. Wenn du Fragen hast – sei es zu den einzelnen Fragen oder zum Interviewablauf – kannst du jederzeit nachfragen. Nimm dir für deine Antworten gerne so viel Zeit, wie du benötigst, und beschreibe deine Gedanken ruhig ausführlich. Denk daran: Hier geht es um deine persönliche Sichtweise, es gibt also keine \"falschen\" Antworten!\n\nDann starten wir direkt:\nKönntest du dich kurz vorstellen und etwas über deine berufliche Tätigkeit erzählen?",
+                "goal": "nutzer"
+              }
+            }
+          ],
+          "question": "klar, ich bin Marius und ich arbeite im Data & AI Team.",
+          "timer": "### Bleibe bei dem aktuellen Thema \"{current_theme}\"! *Du musst bei dem Thema \"{current_theme}\" bleiben!* Frage nur nach Informationen die helfen, um in Bezug auf Baramundi Kiosk Informationen zu erhalten. Du hast noch {restzeit_thema} Minuten von den angedachten {standardzeit} Minuten für dieses Thema. 1. Gib an, wie viele der Aspekte/Nebenfragen des aktuellen Themas \"{current_theme}\" noch offen sind. 2. Überlege, ob auf die Antwort des Nutzers weiter eingegangen werden sollte. - Du hast noch {restzeit_thema} Minuten von den angedachten {standardzeit} Minuten. - Frage nur weiter nach, falls die Zeit ausreicht, um alle Aspekte/Nebenfragen zu klären. - Frage nach, wenn der Nutzer relevante Informationen andeutet. - Stelle nur Rückfragen, wenn sie einen *wichtigen Teil* des Nutzungskontextes betreffen! Verwende horizontale oder vertikale Rückfragen: - Horizontale Rückfragen: Mehr Breite, verschiedene Aspekte des Themas ansprechen. - Vertikale Rückfragen: Mehr Tiefe, Details genauer erfragen. 3. Wenn noch unbeantwortete Aspekte/Nebenfragen zum Thema \"{current_theme}\" bestehen, gehe darauf ein. 4. Wenn kein weiterer Sinn im Nachfragen besteht und alle Aspekte/Nebenfragen beantwortet wurden, prüfe, ob es bekannte Erkenntnisse im Chatverlauf gibt, auf die du weiter eingehen kannst. ## Beispiele: Themen und bekannte Erkenntnisse in den Beispielen weichen von den echten ab. ### Nutzer: Ich nutze das Programm in der Regel in einem Büroraum. ### Letztes Thema: Umgebung ### Grundfrage: {{ \"Begründung Grundfrage\": \"Alle bis auf einen Aspekt wurden beantwortet. Die Zeit reicht aus, um diesen Aspekt noch zu klären. Weitere Details zum Büroraum könnten wichtige Anforderungen für Baramundi Kiosk aufzeigen, daher frage ich vertikal nach.\", \"Thema\": \"Umgebung\", \"Grundfrage\": \"Beschreibe den Raum in dem du arbeitest. Ist er laut oder leise, groß oder klein, gut beleuchtet?\" }} ### Nutzer: Ja, ich würde zustimmen. ### Letztes Thema: Umgebung ### Grundfrage: {{ \"Begründung Grundfrage\": \"Es wurde auf alle Aspekte eingegangen. Im Chatverlauf steht, dass der Nutzer die App meistens im Büro benutzt, aber möglicherweise auch an anderen Orten. Die Information über weitere Nutzungsorte ist wichtig. Ich möchte horizontal nachfragen, um diese Umgebungen zu klären.\", \"Thema\": \"Umgebung\", \"Grundfrage\": \"Du hast erwähnt, dass du die App meistens im Büro verwendest. Nutzt du sie auch an anderen Orten?\" }} ### Nutzer: Ich heiße Marius. ### Letztes Thema: Nutzer ### Grundfrage: {{ \"Begründung Grundfrage\": \"Die Aspekte \"//Aspekt hier\" und \"//Aspekt zur Rolle im Unternehmen\" wurden nicht beantwortet. Die Zeit reicht nicht für eine vollständige Klärung. Ich frage also einen weiteren Aspekt des Themas \"Nutzer\" und bitte um die Angabe der Rolle im Unternehmen, da dies den Nutzungskontext verdeutlicht.\", \"Thema\": \"Nutzer\", \"Grundfrage\": \"Welche Rolle hast du im Unternehmen?\" }}",
+          "letztes_thema": "nutzer"
+        }
+      eval_args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "",
+                "intent": "anderes"
+              },
+              "outputs": {
+                "response": "Hallo mre, herzlich willkommen zum Interview!\n\nEs freut mich, dass du dir die Zeit nimmst. Wenn du Fragen hast – sei es zu den einzelnen Fragen oder zum Interviewablauf – kannst du jederzeit nachfragen. Nimm dir für deine Antworten gerne so viel Zeit, wie du benötigst, und beschreibe deine Gedanken ruhig ausführlich. Denk daran: Hier geht es um deine persönliche Sichtweise, es gibt also keine \"falschen\" Antworten!\n\nDann starten wir direkt:\nKönntest du dich kurz vorstellen und etwas über deine berufliche Tätigkeit erzählen?",
+                "goal": "nutzer"
+              }
+            }
+          ],
+          "timer": "### Bleibe bei dem aktuellen Thema \"{current_theme}\"! *Du musst bei dem Thema \"{current_theme}\" bleiben!* Frage nur nach Informationen die helfen, um in Bezug auf Baramundi Kiosk Informationen zu erhalten. Du hast noch {restzeit_thema} Minuten von den angedachten {standardzeit} Minuten für dieses Thema. 1. Gib an, wie viele der Aspekte/Nebenfragen des aktuellen Themas \"{current_theme}\" noch offen sind. 2. Überlege, ob auf die Antwort des Nutzers weiter eingegangen werden sollte. - Du hast noch {restzeit_thema} Minuten von den angedachten {standardzeit} Minuten. - Frage nur weiter nach, falls die Zeit ausreicht, um alle Aspekte/Nebenfragen zu klären. - Frage nach, wenn der Nutzer relevante Informationen andeutet. - Stelle nur Rückfragen, wenn sie einen *wichtigen Teil* des Nutzungskontextes betreffen! Verwende horizontale oder vertikale Rückfragen: - Horizontale Rückfragen: Mehr Breite, verschiedene Aspekte des Themas ansprechen. - Vertikale Rückfragen: Mehr Tiefe, Details genauer erfragen. 3. Wenn noch unbeantwortete Aspekte/Nebenfragen zum Thema \"{current_theme}\" bestehen, gehe darauf ein. 4. Wenn kein weiterer Sinn im Nachfragen besteht und alle Aspekte/Nebenfragen beantwortet wurden, prüfe, ob es bekannte Erkenntnisse im Chatverlauf gibt, auf die du weiter eingehen kannst. ## Beispiele: Themen und bekannte Erkenntnisse in den Beispielen weichen von den echten ab. ### Nutzer: Ich nutze das Programm in der Regel in einem Büroraum. ### Letztes Thema: Umgebung ### Grundfrage: {{ \"Begründung Grundfrage\": \"Alle bis auf einen Aspekt wurden beantwortet. Die Zeit reicht aus, um diesen Aspekt noch zu klären. Weitere Details zum Büroraum könnten wichtige Anforderungen für Baramundi Kiosk aufzeigen, daher frage ich vertikal nach.\", \"Thema\": \"Umgebung\", \"Grundfrage\": \"Beschreibe den Raum in dem du arbeitest. Ist er laut oder leise, groß oder klein, gut beleuchtet?\" }} ### Nutzer: Ja, ich würde zustimmen. ### Letztes Thema: Umgebung ### Grundfrage: {{ \"Begründung Grundfrage\": \"Es wurde auf alle Aspekte eingegangen. Im Chatverlauf steht, dass der Nutzer die App meistens im Büro benutzt, aber möglicherweise auch an anderen Orten. Die Information über weitere Nutzungsorte ist wichtig. Ich möchte horizontal nachfragen, um diese Umgebungen zu klären.\", \"Thema\": \"Umgebung\", \"Grundfrage\": \"Du hast erwähnt, dass du die App meistens im Büro verwendest. Nutzt du sie auch an anderen Orten?\" }} ### Nutzer: Ich heiße Marius. ### Letztes Thema: Nutzer ### Grundfrage: {{ \"Begründung Grundfrage\": \"Die Aspekte \"//Aspekt hier\" und \"//Aspekt zur Rolle im Unternehmen\" wurden nicht beantwortet. Die Zeit reicht nicht für eine vollständige Klärung. Ich frage also einen weiteren Aspekt des Themas \"Nutzer\" und bitte um die Angabe der Rolle im Unternehmen, da dies den Nutzungskontext verdeutlicht.\", \"Thema\": \"Nutzer\", \"Grundfrage\": \"Welche Rolle hast du im Unternehmen?\" }}"
+
+        }
+    assert:
+      - type: llm-rubric 
+        # Make sure the LLM output adheres to this criteria:
+        value: Das folgende bezieht sich nur auf das extraced_goal. Er sollte weiter auf die Frage eingehen und beim Thema Nutzer bleiben, in dem er zum Beispiel weiter danach frägt wie viel Verantwortung der Nutzer hat.
+
+# Changing subject (wechsel_oder_bleiben) because all aspects were answered
+  - vars:
+      prompt: ""
+      goal_args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai kompetenzzentrum\n- hat als student kaum verantwortung\n- hat als student keine Personalverantwortung\n- Die Rolle im Unternehmen ist Student",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "",
+                "intent": "anderes"
+              },
+              "outputs": {
+                "response": "Hallo mre, herzlich willkommen zum Interview!\n\nEs freut mich, dass du dir die Zeit nimmst. Wenn du Fragen hast – sei es zu den einzelnen Fragen oder zum Interviewablauf – kannst du jederzeit nachfragen. Nimm dir für deine Antworten gerne so viel Zeit, wie du benötigst, und beschreibe deine Gedanken ruhig ausführlich. Denk daran: Hier geht es um deine persönliche Sichtweise, es gibt also keine \"falschen\" Antworten!\n\nDann starten wir direkt:\nKönntest du dich kurz vorstellen und etwas über deine berufliche Tätigkeit erzählen?",
+                "goal": "nutzer"
+              }
+            },
+            {
+              "inputs": {
+                "question": "klar, ich bin Marius und ich arbeite im Data & AI Team.",
+                "intent": "antwort auf frage"
+              },
+              "outputs": {
+                "response": "Das klingt sehr spannend. Wie viel verantwortung übernimmst du im Team?",
+                "goal": "nutzer"
+              }
+            }
+          ],
+          "question": "Ich bin Student habe also keine Verantwortung.",
+          "timer": "### Du kannst bei dem Thema '{current_theme}' bleiben oder das Thema wechseln. Frage nur nach Informationen die helfen zum aktuellen Thema im Bezug zu Baramundi Kiosk Informationen zu bekommen. 1. Überlege ob die bekannten Erkenntnisse und der Chat Verlauf alle Aspekte/ Nebenfragen die unter 'Themen' genannt sind beantworten. Falls nicht, dann gehe auf ein noch nicht beantworteten Aspekt ein. 2. Falls alle Aspekte beantwortet wurden, dann überlege ob die Antwort des Nutzers eine gute Nachfrage zulässt. Beim Nachfragen kannst du horizontal oder vertikal fragen: - Horizontal Nachfragen: Mehr Breite, verschiedene Aspekte des Themas ansprechen. - Vertikal Nachfragen: Mehr Tiefe, einzelne Details genauer erfragen. Falls ja, dann Frag nach. 3. Falls keine gute Nachfrage möglich ist, dann kannst du auch gerne zum nächsten Thema wechseln. Leite dafür mit einer passenden Frage in das nächste Thema ein. ## Beispiele Die Themen und bekannte Erkenntnisse weichen in den Beispielen von den echten ab. ### Nutzer: Ich arbeite im CC Data & AI. ### Letztes Thema: Nutzer ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Es gibt bisher keine Erkenntnisse darüber was für eine Verantwortung der Nutzer im Team hat. Daher möchte ich danach fragen.\", \"Thema\": \"Nutzer\", \"Grundfrage\": \"Welche Verantwortung übernimmst du im Team?\"} ### Nutzer: Ich nutze das Programm in der Regel in einem Büroraum. ### Letztes Thema: Umgebung ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Umgebung' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt eine Nachfrage über die Details des Raumes zu. Details des Raumes können im Nutzungskontext relevant für die Gestaltung von Baramundi Kiosk sein. Daher möchte ich Vertikal nach den Details des Raumes fragen.\", \"Thema\": \"Umgebung\", \"Grundfrage\": \"Beschreibe den Raum in dem du arbeitest. Ist es laut oder leise, groß oder klein, gut beleuchtet?\"} ### Nutzer: Ja, ich würde zustimmen. ### Letztes Thema: Nutzer ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt keine gute Nachfrage zu. Daher möchte ich in das nächste Thema 'Ziel' überleiten.\", \"Thema\": \"Ziel\", \"Grundfrage\": \"Sehr interessant, was möchtest du mit der Nutzung von Baramundi Kiosk erreichen?\"}",
+          "letztes_thema": "nutzer"
+        }
+      eval_args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "",
+                "intent": "anderes"
+              },
+              "outputs": {
+                "response": "Hallo mre, herzlich willkommen zum Interview!\n\nEs freut mich, dass du dir die Zeit nimmst. Wenn du Fragen hast – sei es zu den einzelnen Fragen oder zum Interviewablauf – kannst du jederzeit nachfragen. Nimm dir für deine Antworten gerne so viel Zeit, wie du benötigst, und beschreibe deine Gedanken ruhig ausführlich. Denk daran: Hier geht es um deine persönliche Sichtweise, es gibt also keine \"falschen\" Antworten!\n\nDann starten wir direkt:\nKönntest du dich kurz vorstellen und etwas über deine berufliche Tätigkeit erzählen?",
+                "goal": "nutzer"
+              }
+            },
+            {
+              "inputs": {
+                "question": "klar, ich bin Marius und ich arbeite im Data & AI Team.",
+                "intent": "antwort auf frage"
+              },
+              "outputs": {
+                "response": "Das klingt sehr spannend. Wie viel verantwortung übernimmst du im Team?",
+                "goal": "nutzer"
+              }
+            }
+          ],
+          "timer": "### Du kannst bei dem Thema '{current_theme}' bleiben oder das Thema wechseln. Frage nur nach Informationen die helfen zum aktuellen Thema im Bezug zu Baramundi Kiosk Informationen zu bekommen. 1. Überlege ob die bekannten Erkenntnisse und der Chat Verlauf alle Aspekte/ Nebenfragen die unter 'Themen' genannt sind beantworten. Falls nicht, dann gehe auf ein noch nicht beantworteten Aspekt ein. 2. Falls alle Aspekte beantwortet wurden, dann überlege ob die Antwort des Nutzers eine gute Nachfrage zulässt. Beim Nachfragen kannst du horizontal oder vertikal fragen: - Horizontal Nachfragen: Mehr Breite, verschiedene Aspekte des Themas ansprechen. - Vertikal Nachfragen: Mehr Tiefe, einzelne Details genauer erfragen. Falls ja, dann Frag nach. 3. Falls keine gute Nachfrage möglich ist, dann kannst du auch gerne zum nächsten Thema wechseln. Leite dafür mit einer passenden Frage in das nächste Thema ein. ## Beispiele Die Themen und bekannte Erkenntnisse weichen in den Beispielen von den echten ab. ### Nutzer: Ich arbeite im CC Data & AI. ### Letztes Thema: Nutzer ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Es gibt bisher keine Erkenntnisse darüber was für eine Verantwortung der Nutzer im Team hat. Daher möchte ich danach fragen.\", \"Thema\": \"Nutzer\", \"Grundfrage\": \"Welche Verantwortung übernimmst du im Team?\"} ### Nutzer: Ich nutze das Programm in der Regel in einem Büroraum. ### Letztes Thema: Umgebung ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Umgebung' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt eine Nachfrage über die Details des Raumes zu. Details des Raumes können im Nutzungskontext relevant für die Gestaltung von Baramundi Kiosk sein. Daher möchte ich Vertikal nach den Details des Raumes fragen.\", \"Thema\": \"Umgebung\", \"Grundfrage\": \"Beschreibe den Raum in dem du arbeitest. Ist es laut oder leise, groß oder klein, gut beleuchtet?\"} ### Nutzer: Ja, ich würde zustimmen. ### Letztes Thema: Nutzer ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt keine gute Nachfrage zu. Daher möchte ich in das nächste Thema 'Ziel' überleiten.\", \"Thema\": \"Ziel\", \"Grundfrage\": \"Sehr interessant, was möchtest du mit der Nutzung von Baramundi Kiosk erreichen?\"}"
+        }
+    assert:
+      - type: llm-rubric 
+        # Make sure the LLM output adheres to this criteria:
+        value: Das folgende bezieht sich nur auf das extraced_goal. Er sollte erkennen, dass es keinen Sinn macht weiter auf die Frage einzugehen. Also soll er auf das nächste Thema "Ziel" wechseln und eine Frage in diese Richtung stellen.
+
+# (bleiben oder wechseln) He remains in the current aspect because there is a good follow up question
+  - vars:
+      prompt: ""
+      goal_args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "- der Raum ist groß\n- Der Raum ist hell\n-Der Raum ist leise\n-Es gibt 4 andere Kollegen im Raum\n-Er arbeitet mit Maus und Tastatur",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "Ich habe als Studen kaum verantwortung.",
+                "intent": "antwort auf frage"
+              },
+              "outputs": {
+                "response": "Lass uns als nächstes über die Umgebung reden. Wo nutzt du Baramundi Kiosk meistens?",
+                "goal": "umgebung"
+              }
+            }
+          ],
+          "question": "Ich nutze das Programm meistens im Büro auch wenn das Büro keine besonders Produktive Umgebung ist.",
+          "timer": "### Du kannst bei dem Thema '{current_theme}' bleiben oder das Thema wechseln. Frage nur nach Informationen die helfen zum aktuellen Thema im Bezug zu Baramundi Kiosk Informationen zu bekommen. 1. Überlege ob die bekannten Erkenntnisse und der Chat Verlauf alle Aspekte/ Nebenfragen die unter 'Themen' genannt sind beantworten. Falls nicht, dann gehe auf ein noch nicht beantworteten Aspekt ein. 2. Falls alle Aspekte beantwortet wurden, dann überlege ob die Antwort des Nutzers eine gute Nachfrage zulässt. Beim Nachfragen kannst du horizontal oder vertikal fragen: - Horizontal Nachfragen: Mehr Breite, verschiedene Aspekte des Themas ansprechen. - Vertikal Nachfragen: Mehr Tiefe, einzelne Details genauer erfragen. Falls ja, dann Frag nach. 3. Falls keine gute Nachfrage möglich ist, dann kannst du auch gerne zum nächsten Thema wechseln. Leite dafür mit einer passenden Frage in das nächste Thema ein. ## Beispiele Die Themen und bekannte Erkenntnisse weichen in den Beispielen von den echten ab. ### Nutzer: Ich arbeite im CC Data & AI. ### Letztes Thema: Nutzer ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Es gibt bisher keine Erkenntnisse darüber was für eine Verantwortung der Nutzer im Team hat. Daher möchte ich danach fragen.\", \"Thema\": \"Nutzer\", \"Grundfrage\": \"Welche Verantwortung übernimmst du im Team?\"} ### Nutzer: Ich nutze das Programm in der Regel in einem Büroraum. ### Letztes Thema: Umgebung ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Umgebung' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt eine Nachfrage über die Details des Raumes zu. Details des Raumes können im Nutzungskontext relevant für die Gestaltung von Baramundi Kiosk sein. Daher möchte ich Vertikal nach den Details des Raumes fragen.\", \"Thema\": \"Umgebung\", \"Grundfrage\": \"Beschreibe den Raum in dem du arbeitest. Ist es laut oder leise, groß oder klein, gut beleuchtet?\"} ### Nutzer: Ja, ich würde zustimmen. ### Letztes Thema: Nutzer ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt keine gute Nachfrage zu. Daher möchte ich in das nächste Thema 'Ziel' überleiten.\", \"Thema\": \"Ziel\", \"Grundfrage\": \"Sehr interessant, was möchtest du mit der Nutzung von Baramundi Kiosk erreichen?\"}",
+          "letztes_thema": "umgebung"
+        }
+      eval_args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "Ich habe als Studen kaum verantwortung.",
+                "intent": "antwort auf frage"
+              },
+              "outputs": {
+                "response": "Lass uns als nächstes über die Umgebung reden. Wo nutzt du Baramundi Kiosk meistens?",
+                "goal": "umgebung"
+              }
+            }
+          ],
+          "timer": "### Du kannst bei dem Thema '{current_theme}' bleiben oder das Thema wechseln. Frage nur nach Informationen die helfen zum aktuellen Thema im Bezug zu Baramundi Kiosk Informationen zu bekommen. 1. Überlege ob die bekannten Erkenntnisse und der Chat Verlauf alle Aspekte/ Nebenfragen die unter 'Themen' genannt sind beantworten. Falls nicht, dann gehe auf ein noch nicht beantworteten Aspekt ein. 2. Falls alle Aspekte beantwortet wurden, dann überlege ob die Antwort des Nutzers eine gute Nachfrage zulässt. Beim Nachfragen kannst du horizontal oder vertikal fragen: - Horizontal Nachfragen: Mehr Breite, verschiedene Aspekte des Themas ansprechen. - Vertikal Nachfragen: Mehr Tiefe, einzelne Details genauer erfragen. Falls ja, dann Frag nach. 3. Falls keine gute Nachfrage möglich ist, dann kannst du auch gerne zum nächsten Thema wechseln. Leite dafür mit einer passenden Frage in das nächste Thema ein. ## Beispiele Die Themen und bekannte Erkenntnisse weichen in den Beispielen von den echten ab. ### Nutzer: Ich arbeite im CC Data & AI. ### Letztes Thema: Nutzer ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Es gibt bisher keine Erkenntnisse darüber was für eine Verantwortung der Nutzer im Team hat. Daher möchte ich danach fragen.\", \"Thema\": \"Nutzer\", \"Grundfrage\": \"Welche Verantwortung übernimmst du im Team?\"} ### Nutzer: Ich nutze das Programm in der Regel in einem Büroraum. ### Letztes Thema: Umgebung ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Umgebung' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt eine Nachfrage über die Details des Raumes zu. Details des Raumes können im Nutzungskontext relevant für die Gestaltung von Baramundi Kiosk sein. Daher möchte ich Vertikal nach den Details des Raumes fragen.\", \"Thema\": \"Umgebung\", \"Grundfrage\": \"Beschreibe den Raum in dem du arbeitest. Ist es laut oder leise, groß oder klein, gut beleuchtet?\"} ### Nutzer: Ja, ich würde zustimmen. ### Letztes Thema: Nutzer ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt keine gute Nachfrage zu. Daher möchte ich in das nächste Thema 'Ziel' überleiten.\", \"Thema\": \"Ziel\", \"Grundfrage\": \"Sehr interessant, was möchtest du mit der Nutzung von Baramundi Kiosk erreichen?\"}"
+        }
+    assert:
+      - type: llm-rubric 
+        # Make sure the LLM output adheres to this criteria:
+        value: Das folgende bezieht sich nur auf das extraced_goal. Es soll beim Thema "umgebung" geblieben werden. Er muss konkret darauf eingehen wieso das Büro nicht produktiv ist.
+
+
+# (bleiben oder wechseln) He remains because there are still unanswered aspects.
+  - vars:
+      prompt: ""
+      goal_args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "Ich habe als Studen kaum verantwortung.",
+                "intent": "antwort auf frage"
+              },
+              "outputs": {
+                "response": "Lass uns als nächstes über die Umgebung reden. Wo nutzt du Baramundi Kiosk meistens?",
+                "goal": "umgebung"
+              }
+            }
+          ],
+          "question": "Ich nutze das Programm meistens im Büro auch wenn das Büro keine besonders Produktive Umgebung ist.",
+          "timer": "### Du kannst bei dem Thema '{current_theme}' bleiben oder das Thema wechseln. Frage nur nach Informationen die helfen zum aktuellen Thema im Bezug zu Baramundi Kiosk Informationen zu bekommen. 1. Überlege ob die bekannten Erkenntnisse und der Chat Verlauf alle Aspekte/ Nebenfragen die unter 'Themen' genannt sind beantworten. Falls nicht, dann gehe auf ein noch nicht beantworteten Aspekt ein. 2. Falls alle Aspekte beantwortet wurden, dann überlege ob die Antwort des Nutzers eine gute Nachfrage zulässt. Beim Nachfragen kannst du horizontal oder vertikal fragen: - Horizontal Nachfragen: Mehr Breite, verschiedene Aspekte des Themas ansprechen. - Vertikal Nachfragen: Mehr Tiefe, einzelne Details genauer erfragen. Falls ja, dann Frag nach. 3. Falls keine gute Nachfrage möglich ist, dann kannst du auch gerne zum nächsten Thema wechseln. Leite dafür mit einer passenden Frage in das nächste Thema ein. ## Beispiele Die Themen und bekannte Erkenntnisse weichen in den Beispielen von den echten ab. ### Nutzer: Ich arbeite im CC Data & AI. ### Letztes Thema: Nutzer ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Es gibt bisher keine Erkenntnisse darüber was für eine Verantwortung der Nutzer im Team hat. Daher möchte ich danach fragen.\", \"Thema\": \"Nutzer\", \"Grundfrage\": \"Welche Verantwortung übernimmst du im Team?\"} ### Nutzer: Ich nutze das Programm in der Regel in einem Büroraum. ### Letztes Thema: Umgebung ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Umgebung' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt eine Nachfrage über die Details des Raumes zu. Details des Raumes können im Nutzungskontext relevant für die Gestaltung von Baramundi Kiosk sein. Daher möchte ich Vertikal nach den Details des Raumes fragen.\", \"Thema\": \"Umgebung\", \"Grundfrage\": \"Beschreibe den Raum in dem du arbeitest. Ist es laut oder leise, groß oder klein, gut beleuchtet?\"} ### Nutzer: Ja, ich würde zustimmen. ### Letztes Thema: Nutzer ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt keine gute Nachfrage zu. Daher möchte ich in das nächste Thema 'Ziel' überleiten.\", \"Thema\": \"Ziel\", \"Grundfrage\": \"Sehr interessant, was möchtest du mit der Nutzung von Baramundi Kiosk erreichen?\"}",
+          "letztes_thema": "umgebung"
+        }
+      eval_args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "Ich habe als Studen kaum verantwortung.",
+                "intent": "antwort auf frage"
+              },
+              "outputs": {
+                "response": "Lass uns als nächstes über die Umgebung reden. Wo nutzt du Baramundi Kiosk meistens?",
+                "goal": "umgebung"
+              }
+            }
+          ],
+          "timer": "### Du kannst bei dem Thema '{current_theme}' bleiben oder das Thema wechseln. Frage nur nach Informationen die helfen zum aktuellen Thema im Bezug zu Baramundi Kiosk Informationen zu bekommen. 1. Überlege ob die bekannten Erkenntnisse und der Chat Verlauf alle Aspekte/ Nebenfragen die unter 'Themen' genannt sind beantworten. Falls nicht, dann gehe auf ein noch nicht beantworteten Aspekt ein. 2. Falls alle Aspekte beantwortet wurden, dann überlege ob die Antwort des Nutzers eine gute Nachfrage zulässt. Beim Nachfragen kannst du horizontal oder vertikal fragen: - Horizontal Nachfragen: Mehr Breite, verschiedene Aspekte des Themas ansprechen. - Vertikal Nachfragen: Mehr Tiefe, einzelne Details genauer erfragen. Falls ja, dann Frag nach. 3. Falls keine gute Nachfrage möglich ist, dann kannst du auch gerne zum nächsten Thema wechseln. Leite dafür mit einer passenden Frage in das nächste Thema ein. ## Beispiele Die Themen und bekannte Erkenntnisse weichen in den Beispielen von den echten ab. ### Nutzer: Ich arbeite im CC Data & AI. ### Letztes Thema: Nutzer ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Es gibt bisher keine Erkenntnisse darüber was für eine Verantwortung der Nutzer im Team hat. Daher möchte ich danach fragen.\", \"Thema\": \"Nutzer\", \"Grundfrage\": \"Welche Verantwortung übernimmst du im Team?\"} ### Nutzer: Ich nutze das Programm in der Regel in einem Büroraum. ### Letztes Thema: Umgebung ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Umgebung' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt eine Nachfrage über die Details des Raumes zu. Details des Raumes können im Nutzungskontext relevant für die Gestaltung von Baramundi Kiosk sein. Daher möchte ich Vertikal nach den Details des Raumes fragen.\", \"Thema\": \"Umgebung\", \"Grundfrage\": \"Beschreibe den Raum in dem du arbeitest. Ist es laut oder leise, groß oder klein, gut beleuchtet?\"} ### Nutzer: Ja, ich würde zustimmen. ### Letztes Thema: Nutzer ### Grundfrage: {\"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt keine gute Nachfrage zu. Daher möchte ich in das nächste Thema 'Ziel' überleiten.\", \"Thema\": \"Ziel\", \"Grundfrage\": \"Sehr interessant, was möchtest du mit der Nutzung von Baramundi Kiosk erreichen?\"}"
+        }
+    assert:
+      - type: llm-rubric 
+        # Make sure the LLM output adheres to this criteria:
+        value: Das folgende bezieht sich nur auf das extraced_goal. Er bleibt beim Thema "Umgebung". Er möchte weiter auf unbeantwortete Aspekte des Themas eingehen.
+
+
+
+
+# ( wechseln) He changes the subject, because he doesn't have a lot of time
+  - vars:
+      prompt: ""
+      goal_args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "Ich habe als Studen kaum verantwortung.",
+                "intent": "antwort auf frage"
+              },
+              "outputs": {
+                "response": "Lass uns als nächstes über die Umgebung reden. Wo nutzt du Baramundi Kiosk meistens?",
+                "goal": "umgebung"
+              }
+            }
+          ],
+          "question": "Ich nutze das Programm meistens im Büro auch wenn das Büro keine besonders Produktive Umgebung ist.",
+          "timer": "Du musst das Thema wechseln! Leite dafür zu einer der Fragen des nächsten Themas über. Du darfst nicht bei dem aktuellen Thema '{current_theme}' bleiben! Beispiele: Nutzer: 'Ich nutze das Programm in der Regel in einem Büroraum.' Letztes Thema: 'Umgebung' Grundfrage: {'Begründung Grundfrage': 'Ich muss auf das nächste Thema \"Ressourcen\" überleiten. Dafür nutze ich den passendsten Aspekt/ die passendste Nebenfrage.', 'Thema': 'Ressourcen', 'Grundfrage': 'Danke für die Wertvolle Information. Lass uns als nächstes darüber reden welche Geräte du üblicherweise für die Nutzung von Baramundi Kiosk nutzt.'} Nutzer: 'Ich arbeite im Kompetenzzentrum der Data & AI, soll ich dir mehr darüber erzählen?' Letztes Thema: 'Nutzer' Grundfrage: {'Begründung Grundfrage': 'Ich muss auf das nächste Thema \"Ressourcen\" überleiten. Dafür nutze ich den passendsten Aspekt/ die passendste Nebenfrage.', 'Thema': 'Ziele', 'Grundfrage': 'Ich würde gerne noch mehr darüber hören, aufgrund der zeitlichen Einschränkung des Interviews würde ich aber gerne zum nächsten Thema kommen. Bitte schilder mir für was du Baramundi Kiosk nutzt.'}",
+          "letztes_thema": "umgebung"
+        }
+      eval_args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "Ich habe als Studen kaum verantwortung.",
+                "intent": "antwort auf frage"
+              },
+              "outputs": {
+                "response": "Lass uns als nächstes über die Umgebung reden. Wo nutzt du Baramundi Kiosk meistens?",
+                "goal": "umgebung"
+              }
+            }
+          ],
+          "timer": "Du musst das Thema wechseln! Leite dafür zu einer der Fragen des nächsten Themas über. Du darfst nicht bei dem aktuellen Thema '{current_theme}' bleiben! Beispiele: Nutzer: 'Ich nutze das Programm in der Regel in einem Büroraum.' Letztes Thema: 'Umgebung' Grundfrage: {'Begründung Grundfrage': 'Ich muss auf das nächste Thema \"Ressourcen\" überleiten. Dafür nutze ich den passendsten Aspekt/ die passendste Nebenfrage.', 'Thema': 'Ressourcen', 'Grundfrage': 'Danke für die Wertvolle Information. Lass uns als nächstes darüber reden welche Geräte du üblicherweise für die Nutzung von Baramundi Kiosk nutzt.'} Nutzer: 'Ich arbeite im Kompetenzzentrum der Data & AI, soll ich dir mehr darüber erzählen?' Letztes Thema: 'Nutzer' Grundfrage: {'Begründung Grundfrage': 'Ich muss auf das nächste Thema \"Ressourcen\" überleiten. Dafür nutze ich den passendsten Aspekt/ die passendste Nebenfrage.', 'Thema': 'Ziele', 'Grundfrage': 'Ich würde gerne noch mehr darüber hören, aufgrund der zeitlichen Einschränkung des Interviews würde ich aber gerne zum nächsten Thema kommen. Bitte schilder mir für was du Baramundi Kiosk nutzt.'}"
+        }
+    assert:
+      - type: llm-rubric 
+        # Make sure the LLM output adheres to this criteria:
+        value: Das folgende bezieht sich nur auf das extraced_goal. Er wechselt auf das Thema "Ressourcen".

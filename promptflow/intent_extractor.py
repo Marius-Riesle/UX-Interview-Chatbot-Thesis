@@ -7,7 +7,14 @@ import json
 # Please update the function name/signature per need
 @tool
 def my_python_tool(intent: str) -> str:
-    intent = json.loads(intent)["Absicht"].lower()
+    intent = json.loads(intent)
+
+    if "Absicht" not in intent:
+            print(f"error in intent_extractor!!! Formatting is bad!")
+            return "antwort auf frage"  # Assume its an answer if there is a formatting error
+
+    intent = intent["Absicht"].lower()
+
     if "antwort auf frage" in intent:
         return "antwort auf frage"
     elif "interview frage" in intent:

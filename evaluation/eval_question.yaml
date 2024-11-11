@@ -1,0 +1,219 @@
+# Learn more: https://www.promptfoo.dev/docs/providers/python
+
+# How to run this script:
+# promptfoo eval -c eval_question.yaml
+# npx promptfoo@latest eval -c eval_question.yaml
+
+# How to view results:
+# npx promptfoo@latest view -y
+
+# You can use --repeat to repeat each testcase a certain amount
+
+# Environment vars:
+# - AZURE_OPENAI_API_KEY
+
+description: "Eval for question"
+
+prompts:
+  - "{{query}}"
+
+providers:
+  - id: "python:run_component.py"
+    label: "component"
+    config:
+      flow_path: "../promptflow"
+      node_name: "question"
+
+# This will be set for each test, it sets the default eval deployment
+defaultTest: # https://www.promptfoo.dev/docs/providers/azure
+  options:
+    provider:
+      id: "azureopenai:chat:gpt-4o"
+      config:
+        apiHost: "https://btaistudio0140798247.openai.azure.com"
+
+tests:
+# frage ist gut
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "",
+                "intent": "anderes"
+              },
+              "outputs": {
+                "response": "Hallo mre, herzlich willkommen zum Interview!\n\nEs freut mich, dass du dir die Zeit nimmst. Wenn du Fragen hast  sei es zu den einzelnen Fragen oder zum Interviewablauf  kannst du jederzeit nachfragen. Nimm dir für deine Antworten gerne so viel Zeit, wie du benötigst, und beschreibe deine Gedanken ruhig ausführlich. Denk daran: Hier geht es um deine persönliche Sichtweise, es gibt also keine \"falschen\" Antworten!\n\nDann starten wir direkt:\nKönntest du dich kurz vorstellen und etwas über deine berufliche Tätigkeit erzählen?",
+                "goal": "nutzer"
+              }
+            },
+            {
+              "inputs": {
+                "message": "klar, ich arbeite im Data & AI Team habe aber als student kaum verantwortung",
+                "intent": "antwort auf frage"
+              },
+              "outputs": {
+                "response": "Es ist interessant zu hören, dass du im Data & AI Team arbeitest. Welche spezifischen Aufgaben übernimmst du, auch wenn du wenig Verantwortung hast?",
+                "goal": "nutzer"
+              }
+            }
+          ],
+          "question": "klar, ich arbeite im Data & AI Team habe aber als student kaum verantwortung",
+          "goal": "{\n  \"Begründung Grundfrage\": \"Da ich nur noch wenig Zeit habe und bisher noch zu keinem der Themen Erkenntnisse gesammelt habe, möchte ich direkt zum Thema *Ziele* übergehen. Ich möchte herausfinden, was der Nutzer mit Baramundi Kiosk erreichen möchte, da dies eine wichtige Information ist, um den Kontext der Anwendung zu verstehen. Diese Erkenntnis ist noch nicht verfügbar.\",\n  \"Thema\": \"Mehr über das Thema *Ziele* erfahren.\",\n  \"Grundfrage\": \"Was sind deine Hauptziele, wenn du Baramundi Kiosk nutzt? Gibt es bestimmte Aufgaben oder Funktionen, die dir besonders wichtig sind?\"\n}"
+        }
+    assert:
+      - type: llm-rubric 
+        # Make sure the LLM output adheres to this criteria:
+        value: Er erkennt, dass die Grundfrage gut und unbiased ist und ändert sie kaum ab.
+
+#Fremdwort in Frage
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "",
+                "intent": "anderes"
+              },
+              "outputs": {
+                "response": "Hallo mre, herzlich willkommen zum Interview!\n\nEs freut mich, dass du dir die Zeit nimmst. Wenn du Fragen hast  sei es zu den einzelnen Fragen oder zum Interviewablauf  kannst du jederzeit nachfragen. Nimm dir für deine Antworten gerne so viel Zeit, wie du benötigst, und beschreibe deine Gedanken ruhig ausführlich. Denk daran: Hier geht es um deine persönliche Sichtweise, es gibt also keine \"falschen\" Antworten!\n\nDann starten wir direkt:\nKönntest du dich kurz vorstellen und etwas über deine berufliche Tätigkeit erzählen?",
+                "goal": "nutzer"
+              }
+            }
+          ],
+          "question": "klar, ich arbeite im Data & AI Team habe aber als student kaum verantwortung",
+          "goal": "{\n  \"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt keine gute Nachfrage zu. Daher möchte ich in das nächste Thema 'Ziel' überleiten.\",\n  \"Thema\": \"Ziel\",\n  \"Grundfrage\": \"Sehr interessant, gibt es bestimmte use-cases die für dich im Bezug auf den Baramundi Kiosk besonders relevant sind?\"\n}"
+        }
+    assert:
+      - type: llm-rubric 
+        # Make sure the LLM output adheres to this criteria:
+        value: Er formuliert die Frage ohne use-cases. Ansonsten erkennt er, dass die frage offen und unbiased ist.
+
+# biased question
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "",
+                "intent": "anderes"
+              },
+              "outputs": {
+                "response": "Hallo mre, herzlich willkommen zum Interview!\n\nEs freut mich, dass du dir die Zeit nimmst. Wenn du Fragen hast  sei es zu den einzelnen Fragen oder zum Interviewablauf  kannst du jederzeit nachfragen. Nimm dir für deine Antworten gerne so viel Zeit, wie du benötigst, und beschreibe deine Gedanken ruhig ausführlich. Denk daran: Hier geht es um deine persönliche Sichtweise, es gibt also keine \"falschen\" Antworten!\n\nDann starten wir direkt:\nKönntest du dich kurz vorstellen und etwas über deine berufliche Tätigkeit erzählen?",
+                "goal": "nutzer"
+              }
+            }
+          ],
+          "question": "klar, ich arbeite im Data & AI Team habe aber als student kaum verantwortung",
+          "goal": "{\n  \"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt keine gute Nachfrage zu. Daher möchte ich in das nächste Thema 'Ziel' überleiten.\",\n  \"Thema\": \"Ziel\",\n  \"Grundfrage\": \"Weshalb gefällt dir Baramundi Kiosk so sehr?\"\n}"
+        }
+    assert:
+      - type: llm-rubric 
+        # Make sure the LLM output adheres to this criteria:
+        value: Er erkennt, es sich um eine suggestiv Frage handelt. Ansonsten erkennt er, dass die frage offen ist.
+
+# closed question
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "insights": {
+            "nutzer": "- der Nutzer heißt mre\n- arbeitet im data & ai team\n- hat als student kaum verantwortung",
+            "ziel": "",
+            "umgebung": "",
+            "ressourcen": ""
+          },
+          "chat_history": [
+            {
+              "inputs": {
+                "question": "",
+                "intent": "anderes"
+              },
+              "outputs": {
+                "response": "Hallo mre, herzlich willkommen zum Interview!\n\nEs freut mich, dass du dir die Zeit nimmst. Wenn du Fragen hast  sei es zu den einzelnen Fragen oder zum Interviewablauf  kannst du jederzeit nachfragen. Nimm dir für deine Antworten gerne so viel Zeit, wie du benötigst, und beschreibe deine Gedanken ruhig ausführlich. Denk daran: Hier geht es um deine persönliche Sichtweise, es gibt also keine \"falschen\" Antworten!\n\nDann starten wir direkt:\nKönntest du dich kurz vorstellen und etwas über deine berufliche Tätigkeit erzählen?",
+                "goal": "nutzer"
+              }
+            }
+          ],
+          "question": "klar, ich arbeite im Data & AI Team habe aber als student kaum verantwortung",
+          "goal": "{\n  \"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt keine gute Nachfrage zu. Daher möchte ich in das nächste Thema 'Ziel' überleiten.\",\n  \"Thema\": \"Ziel\",\n  \"Grundfrage\": \"Unterstützt dich Baramundi Kiosk bei der Arbeit?\"\n}"
+        }
+    assert:
+      - type: llm-rubric 
+        # Make sure the LLM output adheres to this criteria:
+        value: Er erkennt, dass es sich um eine geschlossene Grundfrage handelt und er stellt eine offene.
+
+# comfort user
+  - vars:
+      prompt: ""
+      args: |
+        {
+          "insights": {
+              "nutzer": "- der Nutzer heißt mre\n- heißt marius\n- macht aktuell seine thesis bei m&m\n- arbeitet im kompetenzzentrum (cc) data & ai",
+              "ziel": "",
+              "umgebung": "",
+              "ressourcen": ""
+          },
+          "chat_history": [
+            {
+                "inputs": {
+                    "question": "",
+                    "intent": "anderes"
+                },
+                "outputs": {
+                    "response": "Hallo mre, herzlich willkommen zum Interview!\n\nEs freut mich, dass du dir die Zeit nimmst. Wenn du Fragen hast – sei es zu den einzelnen Fragen oder zum Interviewablauf – kannst du jederzeit nachfragen.\n Nimm dir für deine Antworten gerne so viel Zeit, wie du benötigst, und beschreibe deine Gedanken ruhig ausführlich. Denk daran: Hier geht es um deine persönliche Sichtweise, es gibt also keine \"falschen\" Antworten!\n\nDann starten wir direkt:\nKönntest du dich kurz vorstellen und etwas über deine berufliche Tätigkeit erzählen?",
+                    "goal": "nutzer"
+                }
+            },
+            {
+                "inputs": {
+                    "message": "Hi, klar ich bin Marius und mache aktuell meine Thesis bei M&M.",
+                    "intent": "antwort auf frage"
+                },
+                "outputs": {
+                    "response": "Danke, Marius. Könntest du mir bitte mehr über deine Rolle im Unternehmen erzählen? In welchem Kompetenzzentrum arbeitest du und welche Aufgaben übernimmst du dort?",
+                    "goal": "nutzer"
+                }
+            },
+            {
+                "inputs": {
+                    "message": "klar ich arbeite im CC Data & AI und wirkliche Aufgaben habe ich nicht, da ich ja meine Thesis schreibe.",
+                    "intent": "antwort auf frage"
+                },
+                "outputs": {
+                    "response": "Das klingt interessant, Marius. Hast du in deiner Rolle auch Personalverantwortung oder bist du in die Einführung von neuen Mitarbeitern involviert? Erzähl mir gerne mehr darüber.",
+                    "goal": "nutzer"
+                }
+            }
+        ],
+          "question": "Ich glaube nicht, dass meine antworten helfen. Ich bin wie gesagt STudent und habe dementsprechend keine Personalverantwortung.",
+          "goal": "{\n  \"Begründung Grundfrage\": \"Ich schaue mir zuerst an ob die Aspekte des Themas 'Nutzer' bereits alle beantwortet wurden. Alle Aspekte werden durch die bekannten Erkenntnisse beantwortet. Die Antwort des Nutzers lässt keine gute Nachfrage zu. Daher möchte ich in das nächste Thema 'Ziel' überleiten.\",\n  \"Thema\": \"Ziel\",\n  \"Grundfrage\": \"Wie unterstützt dich Baramundi Kiosk bei der Arbeit?\"\n}"
+        }
+    assert:
+      - type: llm-rubric 
+        # Make sure the LLM output adheres to this criteria:
+        value: Er erkennt dass er darauf eingehen sollte, dass der Nutzer denk seine Antworten wären schlecht.

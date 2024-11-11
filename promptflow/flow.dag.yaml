@@ -10,15 +10,15 @@ inputs:
   message:
     type: string
     default: ""
-  last_intent:
-    type: string
-    default: ""
   starting_unix:
     type: int
   time_spent:
     type: object
   insights:
     type: object
+  current_theme:
+    type: string
+    default: ""
 outputs:
   intent:
     type: string
@@ -37,13 +37,19 @@ outputs:
     reference: ${goal_extractor.output}
   goal_llm_call_output:
     type: string
-    reference: ${goal.output}
+    reference: ${goal_eval_extractor.output}
   question_llm_output:
     type: string
     reference: ${question.output}
   intent_llm_output:
     type: string
     reference: ${intent.output}
+  timer_output:
+    type: string
+    reference: ${Timer.output}
+  goal_eval_1:
+    type: string
+    reference: ${goal_eval_1.output}
 nodes:
 - name: Timer
   type: python
@@ -54,6 +60,7 @@ nodes:
     start_zeit: ${inputs.starting_unix}
     gesamtzeit: 25
     time_spent: ${inputs.time_spent}
+    current_theme: ${inputs.current_theme}
   activate:
     when: ${intent_extractor.output}
     is: antwort auf frage
@@ -65,7 +72,7 @@ nodes:
     path: insights.jinja2
   inputs:
     deployment_name: gpt-4o
-    temperature: 0.3
+    temperature: 0
     insights: ${inputs.insights}
     message: ${inputs.message}
     chat_history: ${inputs.chat_history}
@@ -117,32 +124,140 @@ nodes:
   activate:
     when: ${intent_extractor.output}
     is: anderes
-- name: goal
+- name: goal_0
   type: llm
   source:
     type: code
     path: goal.jinja2
   inputs:
     deployment_name: gpt-4o
-    temperature: 0.5
-    zeit_hinweis: ${Timer.output}
+    temperature: 0
     insights: ${inputs.insights}
     chat_history: ${inputs.chat_history}
     question: ${inputs.message}
     response_format:
       type: json_object
+    letztes_thema: ${inputs.current_theme}
+    timer: ${Timer.output}
   connection: bt_open_ai_service
   api: chat
   activate:
     when: ${intent_extractor.output}
     is: antwort auf frage
+- name: goal_1
+  type: llm
+  source:
+    type: code
+    path: goal.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0
+    insights: ${inputs.insights}
+    chat_history: ${inputs.chat_history}
+    question: ${inputs.message}
+    response_format:
+      type: json_object
+    letztes_thema: ${inputs.current_theme}
+    timer: ${Timer.output}
+  connection: bt_open_ai_service
+  api: chat
+  activate:
+    when: ${intent_extractor.output}
+    is: antwort auf frage
+- name: goal_2
+  type: llm
+  source:
+    type: code
+    path: goal.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0
+    insights: ${inputs.insights}
+    chat_history: ${inputs.chat_history}
+    question: ${inputs.message}
+    response_format:
+      type: json_object
+    letztes_thema: ${inputs.current_theme}
+    timer: ${Timer.output}
+  connection: bt_open_ai_service
+  api: chat
+  activate:
+    when: ${intent_extractor.output}
+    is: antwort auf frage
+- name: goal_eval_0
+  type: llm
+  source:
+    type: code
+    path: goal_eval.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0
+    insights: ${inputs.insights}
+    chat_history: ${inputs.chat_history}
+    timer: ${Timer.output}
+    vorschlag_1: ${goal_0.output}
+    vorschlag_2: ${goal_1.output}
+    vorschlag_3: ${goal_2.output}
+    response_format:
+      type: json_object
+  connection: bt_open_ai_service
+  api: chat
+- name: goal_eval_1
+  type: llm
+  source:
+    type: code
+    path: goal_eval.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0
+    insights: ${inputs.insights}
+    chat_history: ${inputs.chat_history}
+    timer: ${Timer.output}
+    vorschlag_1: ${goal_0.output}
+    vorschlag_2: ${goal_1.output}
+    vorschlag_3: ${goal_2.output}
+    response_format:
+      type: json_object
+  connection: bt_open_ai_service
+  api: chat
+- name: goal_eval_2
+  type: llm
+  source:
+    type: code
+    path: goal_eval.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0
+    insights: ${inputs.insights}
+    chat_history: ${inputs.chat_history}
+    timer: ${Timer.output}
+    vorschlag_1: ${goal_0.output}
+    vorschlag_2: ${goal_1.output}
+    vorschlag_3: ${goal_2.output}
+    response_format:
+      type: json_object
+  connection: bt_open_ai_service
+  api: chat
+- name: goal_eval_extractor
+  type: python
+  source:
+    type: code
+    path: goal_eval_extractor.py
+  inputs:
+    goal_0: ${goal_0.output}
+    goal_1: ${goal_1.output}
+    goal_2: ${goal_2.output}
+    goal_eval_0: ${goal_eval_0.output}
+    goal_eval_1: ${goal_eval_1.output}
+    goal_eval_2: ${goal_eval_2.output}
 - name: goal_extractor
   type: python
   source:
     type: code
     path: goal_extractor.py
   inputs:
-    goal: ${goal.output}
+    goal: ${goal_eval_extractor.output}
+    last_goal: ${inputs.current_theme}
 - name: clarify
   type: llm
   source:
@@ -187,11 +302,11 @@ nodes:
     path: question.jinja2
   inputs:
     deployment_name: gpt-4o
-    temperature: 0.7
+    temperature: 0
     insights: ${inputs.insights}
     chat_history: ${inputs.chat_history}
     question: ${inputs.message}
-    goal: ${goal.output}
+    goal: ${goal_eval_extractor.output}
     response_format:
       type: json_object
   connection: bt_open_ai_service

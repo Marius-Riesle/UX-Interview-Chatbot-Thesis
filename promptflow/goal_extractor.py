@@ -6,11 +6,16 @@ import json
 # Adding type to arguments and return value will help the system show the types properly
 # Please update the function name/signature per need
 @tool
-def my_python_tool(goal: str) -> str:
-    goal = json.loads(goal)["Thema"].lower()
-    for key in ["nutzer","ziel","aufgabe","umgebung","ressource"]:
+def my_python_tool(goal: str, last_goal: str) -> str:
+    goal = json.loads(goal)
+    if "Thema" not in goal:
+        print(f"error in goal_extractor!!! Formatting is bad!")
+        return last_goal
+    goal = goal["Thema"].lower()
+    
+    for key in ["nutzer","ziel","umgebung","ressource"]:
         if key in goal:
-            if key in ["aufgabe","ressource"]:
+            if key == "ressource":
                 return key + "n"
             return key
-    return "unklar"
+    return last_goal

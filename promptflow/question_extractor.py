@@ -7,5 +7,9 @@ import json
 # Please update the function name/signature per need
 @tool
 def my_python_tool(question: str) -> str:
-    return json.loads(question)["Endfrage"]
+    question_json = json.loads(question)
+    if "Endfrage" not in question_json:
+        return "Es tut mir leid, da ist wohl etwas schief gelaufen, wiederhole deine Antwort bitte. Wende dich bitte an Marius falls dieser Fehler weiterhin auftritt."
+    
+    return question_json["Endfrage"]
     

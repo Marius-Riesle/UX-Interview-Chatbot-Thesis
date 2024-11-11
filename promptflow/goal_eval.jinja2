@@ -1,12 +1,13 @@
 # System:
-Dein Ziel ist es Erkenntnisse über 5 Kategorien aus der Nachricht zu generieren.
-Wiederhole keine Erkenntnisse die bereits bekannt sind.
-Begründe deine Entscheidung.
-Antworte im JSON Format.
+Evaluiere welcher der Vorschläge am besten die Kriterien erfüllt.
+Nutze für die Evaluierung den bereitgestellten Kontext.
+Antworte in JSON.
+Begründe deine Antwort.
 
-# Kontext
+# Kontext 
 ## Themen
 Das Interview soll den Kontext der Anwendung "Baramundi Kiosk" ermitteln. Baramundi Kiosk ist ein Tool, durch das Software eigenständig und kontrolliert installiert werden kann.
+Im Kiosk kann man Software suchen (Suchleiste), filter (Kategorien) und installieren (bestimmtem Gerät zuweisen). Zusätzlich gibt es die Funktion, unter "Devices" zu sehen was für Aufträge (installation von Software) auf einem Gerät läuft/ gelaufen ist.
 Folgend werden die Themen über die Informationen gesammelt werden sollen und entsprechende Beispiel Aspekte beschrieben.
 ### Nutzer
 Es ist wichtig herauszufinden was für Personen Baramundi Kiosk nutzen. Frage nur nach Nutzerinformationen die Relevant für Baramundi Kiosk sind.
@@ -42,7 +43,7 @@ Mit welchen Ressourcen (z.B. endgeräte) Baramundi Kiosk genutz wird ist relevan
 - Informationen bezüglich der Ressource Zeit (Wie lange dauert das Installieren von Software mit Baramundi Kiosk?)
 - Informationen bezüglich anderer Ressourcen (Stabilität Iternetverbindung, ...)
 
-# Bekannte Erkenntnisse:
+## Bekannte Erkenntnisse
 Nutzer:
 {{insights.nutzer}}
 Ziel:
@@ -52,30 +53,37 @@ Umgebung:
 Ressourcen:
 {{insights.ressourcen}}
 
-# Beispiele:
-## Nutzer:
-Ich bin Heiko und arbeite im Kompetenzzentrum (CC) Data & AI
-## Erkenntnisse:
-{"Begründung": "In dem Satz geht es um den *Nutzer* selbst. Er nennt seinen Namen und das Kompetenzzentrum in dem er tätig ist. Diese Informationen sind noch nicht bekannt.", "Erkenntnisse": {"nutzer":["- heißt Heiko ","- arbeitet im Kompetenzzentrum (CC) Data & AI"]}}
-
-## Nutzer:
-Meistens nutze ich Baramundi Kiosk auf der Arbeit im Büro. Manchmal arbeite ich aber auch von Zuhause.
-## Erkenntnisse:
-{"Begründung": "In dem ersten Satz, erklärt der Nutzer das er Baramundi Kiosk in der *Umgebung* Büro nutzt. Im Zweiten Satz, erwähnt er eine weiter *Umbegung* und zwar sein Zuhause. Beide Informationen sind noch nicht bekannt.", "Erkenntnisse": {"umgebung":["- nutzt Baramundi Kiosk im Büro","- nutzt Baramundi Kiosk von Zuhause"]}}
-
-## Nutzer:
-Ich nutze vor allem die automatische update Funktion. Dafür gehe ich in die einstellungen und klicke auf "Auto update".
-## Erkenntnisse:
-{"Begründung": "Im ersten Satz wird erwähnt, dass der Nutzer das *Ziel* "automatische updates" hat. Im zweiten Satz erklärt der Nutzer was für Aufgaben er bewältigen muss um das *Ziel* zu erreichen. Beide Informationen sind noch nicht bekannt.", "Erkenntnisse": {"ziel":["- nutzt vor allem die automatische update Funktion","- klickt über Einstellungen auf "Auto update" um das Ziel "automatische updates" einzustellen"]}}
-
-# Chat Verlauf:
+## Chat Verlauf:
 {% for item in chat_history %}
-## Nutzer:
+### Nutzer:
 {{item.inputs.message}}
-## Chatbot:
+### Chatbot:
 {{item.outputs.response}}
 {% endfor %}
 
-# Nutzer:
-{{message}}
-## Erkenntnisse:
+# Kriterien:
+1. Es darf nicht nach Informationen fragen, die bereits in den bekannten Erkenntnissen sind.
+2. Die Frage darf keine Wiederholung bereits gestellter Fragen sein.
+3. Die Fragen muss einen Bezug zu Baramundi Kiosk haben.
+4. Das Angegebene "Thema" muss zur vorgeschlagenen Frage passen.
+6. Der Vorschlag muss der empfohlenen vorgehensweise folgen:
+{{timer}}
+
+
+# Antworte im Format:
+{
+    "Begründung": "Gehe in deiner Begründung auf alle Kriterien einzeln nacheinander ein und erklären ob sie diese erfüllen. Erkläre dann weshalb du dich für den gewählten Vorschlag entschieden hast.",
+    "Bester_Vorschlag": "2"
+}
+
+# Vorschläge
+## Vorschlag 1
+{{vorschlag_1}}
+
+## Vorschlag 2
+{{vorschlag_2}}
+
+## Vorschlag 3
+{{vorschlag_3}}
+
+# Antwort:

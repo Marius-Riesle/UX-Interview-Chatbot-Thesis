@@ -1,6 +1,5 @@
 
 from promptflow import tool
-import re
 import json
 
 # The inputs section will change based on the arguments of the tool function, after you save the code
@@ -9,7 +8,13 @@ import json
 @tool
 def my_python_tool(new_insights: str, insights: dict) -> str:
     new_insights = new_insights.lower()
-    new_insights = json.loads(new_insights)["erkenntnisse"]
+    new_insights = json.loads(new_insights)
+
+    if "erkenntnisse" not in new_insights:
+            print(f"error in insights!!! Formatting is bad!")
+            return insights  # Return original insights if no "erkenntnisse" key is found
+
+    new_insights = new_insights["erkenntnisse"]
 
     for key in insights:
         if key in new_insights:

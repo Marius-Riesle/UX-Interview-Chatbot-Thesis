@@ -15,13 +15,13 @@ load_dotenv()
 def save_vars(file_path):
     chat_history = cl.user_session.get("chat_history")
     starting_unix = cl.user_session.get("starting_unix")
-    last_intent = cl.user_session.get("last_intent")
+    current_theme = cl.user_session.get("current_theme")
     time_spent = cl.user_session.get("time_spent") 
     insights = cl.user_session.get("insights") 
     
     data = {
         "chat_history": chat_history,
-        "last_intent": last_intent,
+        "current_theme": current_theme,
         "starting_unix": starting_unix,
         "time_spent": time_spent,
         "insights": insights
@@ -38,22 +38,22 @@ def restore_vars(file_path):
         user_name = cl.user_session.get("user").identifier
 
         cl.user_session.set("chat_history", data["chat_history"] or [])
-        cl.user_session.set("last_intent", data["last_intent"] or "nutzer")
+        cl.user_session.set("current_theme", data["current_theme"] or "nutzer")
         cl.user_session.set("starting_unix", data["starting_unix"] or int(time.time()))
-        cl.user_session.set("time_spent", data["time_spent"] or {"nutzer": 0, "ziel": 0,"aufgaben": 0,"umgebung": 0,"ressourcen": 0})
-        cl.user_session.set("insights", data["insights"] or {"nutzer": f"- der Nutzer heißt {user_name}", "ziel": "","aufgaben": "","umgebung": "","ressourcen": ""})
+        cl.user_session.set("time_spent", data["time_spent"] or {"nutzer": 0, "ziel": 0,"umgebung": 0,"ressourcen": 0})
+        cl.user_session.set("insights", data["insights"] or {"nutzer": f"- der Nutzer heißt {user_name}", "ziel": "","umgebung": "","ressourcen": ""})
 
 
 # Accesses the default promptflow
 def use_promptflow(input: str):
     chat_history = cl.user_session.get("chat_history")
     starting_unix = cl.user_session.get("starting_unix")
-    last_intent = cl.user_session.get("last_intent")
     time_spent = cl.user_session.get("time_spent")
     insights = cl.user_session.get("insights")
+    current_theme = cl.user_session.get("current_theme")
 
     flow = load_flow(source="promptflow", environment_variables={"PF_DISABLE_TRACING": True})   # PF_DISABLE_TRACING has to be set as environment var
-    result = flow(message=input, chat_history=chat_history, last_intent=last_intent, starting_unix=starting_unix, time_spent=time_spent, insights=insights)
+    result = flow(message=input, chat_history=chat_history, starting_unix=starting_unix, time_spent=time_spent, insights=insights, current_theme=current_theme)
 
 
     # add to time spent since last chatbot response
@@ -61,10 +61,11 @@ def use_promptflow(input: str):
     if last_response_time is not None and chat_history[-1]["outputs"]["goal"] in time_spent:
         delta_question_time = time.time() - last_response_time
         time_spent[chat_history[-1]["outputs"]["goal"]] += int(delta_question_time)
-        time_spent = cl.user_session.set("time_spent", time_spent)
+    time_spent = cl.user_session.set("time_spent", time_spent)
 
     cl.user_session.set("last_response_time", int(time.time()))
     cl.user_session.set("insights", result["insights"])
+    cl.user_session.set("current_theme", result["goal"] or current_theme)
 
 
     # append to chat_history
@@ -109,6 +110,7 @@ async def main(message: cl.Message):
             time.sleep(0.05)
         return
 
+    exec_time = time.time()
     # execute promptflow equal to use_promptflow(message.content)
     response = await cl.make_async(use_promptflow)(
         message.content
@@ -121,7 +123,7 @@ async def main(message: cl.Message):
             step.input = {
                 "chat_history" : cl.user_session.get("chat_history"),
                 "starting_unix" : cl.user_session.get("starting_unix"),
-                "last_intent" : cl.user_session.get("last_intent"),
+                "current_theme" : cl.user_session.get("current_theme"),
                 "time_spent" : cl.user_session.get("time_spent"),
                 "insights" : cl.user_session.get("insights"),
             }
@@ -130,6 +132,7 @@ async def main(message: cl.Message):
         async with cl.Step(name="response_data", type="tool") as step:
             step.input = response
 
+    print(time.time()- exec_time)
     # fake stream message
     msg.author = "Chatbot"
     for i in range(int(len(response["response"])/3)+2):
@@ -159,10 +162,10 @@ async def on_chat_start():
         restore_vars(file_name_pkl)
     else:
         cl.user_session.set("chat_history", [] or cl.user_session.get("chat_history"))
-        cl.user_session.set("last_intent", "nutzer")
+        cl.user_session.set("current_theme", "nutzer")
         cl.user_session.set("starting_unix", int(time.time()))
-        cl.user_session.set("time_spent", {"nutzer": 0, "ziel": 0,"aufgaben": 0,"umgebung": 0,"ressourcen": 0})
-        cl.user_session.set("insights", {"nutzer": f"- der Nutzer heißt {user_name}", "ziel": "","aufgaben": "","umgebung": "","ressourcen": ""})
+        cl.user_session.set("time_spent", {"nutzer": 0, "ziel": 0,"umgebung": 0,"ressourcen": 0})
+        cl.user_session.set("insights", {"nutzer": f"- der Nutzer heißt {user_name}", "ziel": "","umgebung": "","ressourcen": ""})
 
     # If messages were saved
     if os.path.exists(file_name_txt):
@@ -174,7 +177,7 @@ async def on_chat_start():
             zeit = datetime.now().strftime("%H:%M:%S")
             file.write(f"\n\nChat wurde um {zeit} weitergeführt:\n\n")
     else:
-        content=f'Hallo {user_name}, herzlich willkommen zum Interview!\n\nEs freut mich, dass du dir die Zeit nimmst. Wenn du Fragen hast – sei es zu den einzelnen Fragen oder zum Interviewablauf – kannst du jederzeit nachfragen. Nimm dir für deine Antworten gerne so viel Zeit, wie du benötigst, und beschreibe deine Gedanken ruhig ausführlich. Denk daran: Hier geht es um deine persönliche Sichtweise, es gibt also keine "falschen" Antworten!\n\nDann starten wir direkt:\nKönntest du dich kurz vorstellen und etwas über deine berufliche Tätigkeit erzählen?'
+        content=f'Hallo {user_name}, herzlich willkommen zum Interview!\n\nEs freut mich, dass du dir die Zeit nimmst. Wenn du Fragen hast – sei es zu den einzelnen Fragen oder zum Interviewablauf – kannst du jederzeit nachfragen.\n Nimm dir für deine Antworten gerne so viel Zeit, wie du benötigst, und beschreibe deine Gedanken ruhig ausführlich. Denk daran: Hier geht es um deine persönliche Sichtweise, es gibt also keine "falschen" Antworten!\n\nDann starten wir direkt:\nKönntest du dich kurz vorstellen und etwas über deine berufliche Tätigkeit erzählen?'
         msg = cl.Message(content=content, author="Chatbot")
         await msg.send()
 
@@ -184,7 +187,7 @@ async def on_chat_start():
                 "inputs": {"question": "",
                         "intent": "anderes"},
                 "outputs": {
-                    "response": content,
+                    "response": f'Herzlich willkommen zum Interview!\n\nEs freut mich, dass du dir die Zeit nimmst. Wenn du Fragen hast – sei es zu den einzelnen Fragen oder zum Interviewablauf – kannst du jederzeit nachfragen.\n Nimm dir für deine Antworten gerne so viel Zeit, wie du benötigst, und beschreibe deine Gedanken ruhig ausführlich. Denk daran: Hier geht es um deine persönliche Sichtweise, es gibt also keine "falschen" Antworten!\n\nDann starten wir direkt:\nKönntest du dich kurz vorstellen und etwas über deine berufliche Tätigkeit erzählen?',
                     "goal": "nutzer",
                 },
             }

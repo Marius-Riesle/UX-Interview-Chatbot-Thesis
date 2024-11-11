@@ -50,7 +50,6 @@ tests:
           "insights": {
             "nutzer": "- der Nutzer heißt Jo", 
             "ziel": "",
-            "aufgaben": "",
             "umgebung": "",
             "ressourcen": ""
           },
@@ -79,7 +78,6 @@ tests:
           "insights": {
             "nutzer": "- der Nutzer heißt Jo", 
             "ziel": "",
-            "aufgaben": "",
             "umgebung": "",
             "ressourcen": ""
           },
@@ -98,7 +96,7 @@ tests:
     assert:
       - type: icontains-all
         value: 
-        - "nutzer:"
+        - 'nutzer":'
         - "Wago business"
 
   - vars:
@@ -109,7 +107,6 @@ tests:
           "insights": {
             "nutzer": "- der Nutzer heißt Jo", 
             "ziel": "",
-            "aufgaben": "",
             "umgebung": "",
             "ressourcen": ""
           },
@@ -128,7 +125,7 @@ tests:
     assert:
       - type: icontains-all
         value: 
-        - "ziel:"
+        - 'ziel":'
         - "aktualisier"
 
   - vars:
@@ -139,7 +136,6 @@ tests:
           "insights": {
             "nutzer": "- der Nutzer heißt Jo", 
             "ziel": "- er nutzt gerne das aktualisierungs feature\n-er findet das deinstallieren feature wichtig",
-            "aufgaben": "",
             "umgebung": "- er nutzt es gerne im Büro",
             "ressourcen": ""
           },
@@ -150,7 +146,7 @@ tests:
                   },
                   "outputs": {
                       "response": "Ah interessant, wie kannst du es an schalten?",
-                      "intent": "aufgabe"
+                      "intent": "ziel"
                   }
               }
           ]
@@ -158,7 +154,7 @@ tests:
     assert:
       - type: icontains-all
         value: 
-        - "aufgabe"
+        - "ziel"
         - "roten knopf"
 
   - vars:
@@ -169,7 +165,6 @@ tests:
           "insights": {
             "nutzer": "- der Nutzer heißt Marcel", 
             "ziel": "- er nutzt gerne das aktualisierungs feature\n-er findet das deinstallieren feature wichtig",
-            "aufgaben": "",
             "umgebung": "",
             "ressourcen": "- er nutzt sein handy"
           },
@@ -188,7 +183,7 @@ tests:
     assert:
       - type: icontains-all
         value: 
-        - "umgebung:"
+        - 'umgebung":'
         - "klo"
 
   - vars:
@@ -199,7 +194,6 @@ tests:
           "insights": {
             "nutzer": "- der Nutzer heißt Marcel", 
             "ziel": "- er nutzt gerne das aktualisierungs feature\n-er findet das deinstallieren feature wichtig",
-            "aufgaben": "",
             "umgebung": "",
             "ressourcen": ""
           },
