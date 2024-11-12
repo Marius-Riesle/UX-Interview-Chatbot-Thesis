@@ -2,46 +2,11 @@
 from promptflow import tool
 import time
 
-def get_theme_under_time_pressure(time_spent: dict):
-    def squared_diff(value, target):
-        return (value - target) ** 2
-
-    nutzer = squared_diff(time_spent["nutzer"], 4)
-    umgebung = squared_diff(time_spent["umgebung"], 4)
-    ressourcen = squared_diff(time_spent["ressourcen"], 4)
-    ziel = squared_diff(time_spent["ziel"], 12)
-
-    # Store the squared differences in a dictionary
-    differences = {
-        "nutzer": nutzer,
-        "umgebung": umgebung,
-        "ressourcen": ressourcen,
-        "ziel": ziel
-    }
-    
-    # Check if the total difference exceeds the threshold
-    if sum(differences.values()) > 4:  # TODO: Adjust threshold value if needed
-        max_theme = max(differences, key=differences.get)
-        return max_theme
-    else:
-        return None
-
-
 # The inputs section will change based on the arguments of the tool function, after you save the code
 # Adding type to arguments and return value will help the system show the types properly
 # Please update the function name/signature per need
 @tool
-def my_python_tool(start_zeit: int, gesamtzeit: int, time_spent:dict, current_theme: str) -> str:
-    # aktuelle_zeit = time.time()
-    # diff_zeit = (aktuelle_zeit - start_zeit) 
-    # restliche_zeit = gesamtzeit - diff_zeit
-
-    # output_str = "" 
-    
-    # theme_under_time_pressure = get_theme_under_time_pressure
-    # if restliche_zeit < 180 and theme_under_time_pressure is not None:
-    #     output_str += f"Zeitdruck!. weiter auf {theme_under_time_pressure} fokussieren" # TODO implement
-    
+def my_python_tool(time_spent:dict, current_theme: str) -> str:
     standardzeit = 3.5
     if current_theme == "ziel":
         standardzeit = 11
@@ -62,7 +27,6 @@ Wenn du Zeit hast und eine Nachfrage möglich ist, dann gehe mit deiner Frage we
 
 3. **Prüfe, ob auf die letzte Antwort des Nutzers eingegangen werden sollte**:
    - Wenn der Nutzer relevante Hinweise gibt, stelle gezielte Nachfragen, die Informationen zum Nutzungskontext liefern.
-   - Gehe weiter auf die Antwort ein, wenn die restliche Zeit ausreicht, um die gegebene Antwort zu vertiefen und die verbleibenden Aspekte/Nebenfragen zu klären.
    - **Art der Nachfrage wählen (horizontal oder vertikal)**:
     - *Horizontal*: Erweitere die Themenbreite und beleuchte verschiedene Aspekte von "{current_theme}".
     - *Vertikal*: Gehe in die Tiefe und erfrage genauere Details zu einem spezifischen Aspekt.
@@ -159,6 +123,7 @@ Nutzer
     "wechseln" : f"""
 ### Du musst das Thema wechseln!
 Leite dafür zu einer der Fragen des nächsten Themas über.
+Die Frage muss neue Erkenntnisse bezüglich des Nutzungskontextes bringen.
 Du darfst nicht bei dem aktuellen Thema "{current_theme}" bleiben!
 
 ## Beispiele
@@ -187,19 +152,19 @@ Nutzer
 
     absicht = "bleiben"
     if current_theme == "ziel":
-        if time_spent["ziel"] < 9 * 60:
+        if time_spent["ziel"] < 7 * 60:
             absicht = "bleiben"
-        elif time_spent["ziel"] < 13 * 60:
+        elif time_spent["ziel"] < 9 * 60:
             absicht = "bleiben_oder_wechseln"
-        elif time_spent["ziel"] > 13 * 60:
+        elif time_spent["ziel"] > 9 * 60:
             absicht = "wechseln"
         
     else:
         if time_spent[current_theme] < 2 * 60:
             absicht = "bleiben"
-        elif time_spent[current_theme] < 4 * 60:
+        elif time_spent[current_theme] < 3.5 * 60:
             absicht = "bleiben_oder_wechseln"
-        elif time_spent[current_theme] > 4 * 60:
+        elif time_spent[current_theme] > 3.5 * 60:
             absicht = "wechseln"
     
     return prompts[absicht]
@@ -207,11 +172,11 @@ Nutzer
     # wenn zeitdruck und ungleiche Verteilung:
     # -> sagen er soll auf das Thema wechseln
 
-    # wenn unter normal endzeit bei thema (<3, <10, <3, <3)
+    # wenn unter normal endzeit bei thema (<2, <7, <2, <2)
     # -> weiter nachfragen oder andere Aspekte des selben Themas ansprechen
-    # Wenn in normal endzeit bei Thema (3-5,10-14, 3-5, 3-5)
+    # Wenn in normal endzeit bei Thema (2-3,7-9, 2-3, 2-3)
     # -> Fokus auf noch nicht beantworteten Aspekten des Themas sonst gerne weiter nachfragen oder aber auch gerne Thema wechseln
-    # wenn über max Zeit bei Thema (>5,>14,>5,>5)
+    # wenn über max Zeit bei Thema (>3,>10,>3,>3)
     # -> Thema wechseln
 
     # bei themen wechsel bevorzugt auf erkenntnisse oder Chat verlauf eingehen sonst neue nebenfrage

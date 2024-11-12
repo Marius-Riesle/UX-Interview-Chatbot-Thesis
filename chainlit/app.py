@@ -101,7 +101,7 @@ async def main(message: cl.Message):
         file.write(f"{timestamp} user: {message.content}\n")
 
     # if interview is over
-    if cl.user_session.get("starting_unix") is not None and time.time() - cl.user_session.get("starting_unix") > 1500:
+    if cl.user_session.get("starting_unix") is not None and time.time() - cl.user_session.get("starting_unix") > 1200:
         msg.author = "Chatbot"
         response = "Danke für die Teilnahme!\nDas Chatbot Interview ist hiermit beendet. Schreibe oder rufe Marius einfach an."
         for i in range(int(len(response)/3)+2):

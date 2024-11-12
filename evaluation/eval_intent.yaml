@@ -152,7 +152,7 @@ tests:
                       "message": "Wie lange geht das Interview noch?"
                   },
                   "outputs": {
-                      "response": "Das Interview geht insgesamt 25 Minuten. Beantworte bitte die letzte Frage falls ich hiermit deine Frage beantwortet habe",
+                      "response": "Das Interview geht insgesamt 20 Minuten. Beantworte bitte die letzte Frage falls ich hiermit deine Frage beantwortet habe",
                       "intent": "anderes"
                   }
               }

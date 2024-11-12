@@ -57,8 +57,6 @@ nodes:
     type: code
     path: Timer.py
   inputs:
-    start_zeit: ${inputs.starting_unix}
-    gesamtzeit: 25
     time_spent: ${inputs.time_spent}
     current_theme: ${inputs.current_theme}
   activate:
